@@ -86,26 +86,29 @@ class Application : public bobcat::Application_ {
         }
     }
 
-    //read stats from file
-    void readStatsFromFile() {
+    //read stats from file and only displays most recent 10 rounds
+    void readStatsFromFile(){
         std::ifstream file("statistics.csv");
         std::string line;
+        std::vector<std::string> lines;
+
+        while(getline(file, line)){
+            lines.push_back(line);
+        }
+
         statisticsRoundTextbox->label("Round\n");
-        statisticOutcomesTextbox->label("Outcome\n");
-        int lineCount = 0;
-        while (getline(file, line)) {
-            if (lineCount >= 10) break;
+        statisticsOutcomesTextbox->label("Outcome\n");
 
-            size_t commaPos = line.find(',');
-            if (commaPos != std::string::npos) {
-                statisticsRoundTextbox->label(statisticsRoundTextbox->label() + line.substr(0, commaPos) + "\n"); 
-                statisticsOutcomesTextbox->label(statisticsWinsTextbox->label() + line.substr(commaPos + 1) + "\n"); 
+        int start = std::max(0, static_cast<int>(lines.size()) - 10);
+        for(int i = start; i < lines.size(); ++i){
+            size_t commaPos = lines[i].find(',');
+            if (commaPos != std::string::npos){
+                statisticsRoundTextbox->label(statisticsRoundTextbox->label() + lines[i].substr(0, commaPos) + "\n"); 
+                statisticsOutcomesTextbox->label(statisticsOutcomesTextbox->label() + lines[i].substr(commaPos + 1) + "\n"); 
             }
-
-            lineCount++;
-        
         }
     }
+
 
     //hide all visual components
     void hideAll() {
